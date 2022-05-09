@@ -172,7 +172,7 @@ bool BunnyManager::next_turn() {
         _bunny_pos_map.insert({bunny.pos, bunny});
 
         set_bunny_tile(*it);
-
+  qew
         break;
       }
     }
