@@ -5,8 +5,8 @@
 #include "tile_map.hpp"
 #include "path_finding.hpp"
 
-#define OUT(args, ofs, console) { \
-  if (console) \
+#define OUT(args, ofs, console_on) { \
+  if (console_on) \
     std::cout << args; \
   \
   ofs << args; \
@@ -236,9 +236,12 @@ bool BunnyManager::next_turn() {
       if (bunny.infected())
         OUT("Infected ", ofs, out_console); 
       
-      OUT("Bunny " << bunny.name() << " ("
-        << bunny_info(bunny) << ")\n", ofs, out_console);
+      OUT("Bunny " << bunny.name() << " (" << bunny_info(bunny) <<
+        ") at (" << bunny.pos.x << ", " << bunny.pos.y << ")\n",
+        ofs, out_console);
     }
+
+    OUT("\n", ofs, out_console);
   }
 
   if (_bunnies.size() > bunny_limit) {

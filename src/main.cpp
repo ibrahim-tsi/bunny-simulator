@@ -189,6 +189,10 @@ static void game_loop(sf::RenderWindow& win, TileMap& tile_map,
 
         else if (event.key.code == sf::Keyboard::C)
           bunny_manager.out_console = !bunny_manager.out_console;
+
+        else if (event.key.code == sf::Keyboard::O) {
+          
+        }
       }
     }
 
