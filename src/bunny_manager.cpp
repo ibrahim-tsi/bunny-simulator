@@ -5,8 +5,10 @@
 #include "tile_map.hpp"
 #include "path_finding.hpp"
 
-#define COUT_AND_OFS(args, ofs) { \
-  std::cout << args; \
+#define OUT(args, ofs, console) { \
+  if (console) \
+    std::cout << args; \
+  \
   ofs << args; \
 }
 
@@ -47,20 +49,24 @@ std::string BunnyManager::bunny_info(const Bunny& bunny) {
   return info;
 }
 
-void BunnyManager::print_bunny_born(const Bunny& bunny, std::ofstream& ofs) {
+void BunnyManager::print_bunny_born(const Bunny& bunny, std::ofstream& ofs,
+  bool out_console)
+{
   if (bunny.infected())
-    COUT_AND_OFS("Infected ", ofs); 
+    OUT("Infected ", ofs, out_console); 
   
-  COUT_AND_OFS("Bunny " << bunny.name() << " was born! ("
-    << bunny_info(bunny) << ")\n", ofs);
+  OUT("Bunny " << bunny.name() << " was born! ("
+    << bunny_info(bunny) << ")\n", ofs, out_console);
 }
 
-void BunnyManager::print_bunny_died(const Bunny& bunny, std::ofstream& ofs) {
+void BunnyManager::print_bunny_died(const Bunny& bunny, std::ofstream& ofs,
+  bool out_console)
+{
   if (bunny.infected())
-    COUT_AND_OFS("Infected ", ofs);
+    OUT("Infected ", ofs, out_console);
 
-  COUT_AND_OFS("Bunny " << bunny.name() << " died! ("
-    << bunny_info(bunny) << ")\n", ofs);
+  OUT("Bunny " << bunny.name() << " died! ("
+    << bunny_info(bunny) << ")\n", ofs, out_console);
 }
 
 void BunnyManager::spawn_initial(int amount) {
@@ -78,7 +84,7 @@ void BunnyManager::spawn_initial(int amount) {
     _bunny_pos_map.insert({it->pos, *it});
 
     set_bunny_tile(*it);
-    print_bunny_born(*it, ofs);
+    print_bunny_born(*it, ofs, out_console);
   }
 }
 
@@ -119,7 +125,8 @@ BunnyManager::BunnyManager(TileMap& tile_map, TileType floor_tile,
     _tile_map(tile_map),
     _floor_tile(floor_tile),
     _out_file_name(out_file_name),
-    _cull_bunnies(bunny_limit)
+    _cull_bunnies(bunny_limit),
+    out_console(false)
 {
   spawn_initial(5);
 }
@@ -136,11 +143,11 @@ bool BunnyManager::next_turn() {
   for(auto it{_bunnies.begin()}; it != _bunnies.end();) {
     Bunny& bunny{*it};
 
-    if ((bunny.infected() && bunny.age() >= util::rnd_range(5, 9)) ||
-      !bunny.infected() && bunny.age() >= util::rnd_range(8, 12))
+    if ((bunny.infected() && bunny.age() >= util::rnd_range(7, 10)) ||
+      !bunny.infected() && bunny.age() >= util::rnd_range(10, 12))
     {
       _tile_map.set_tile(bunny.pos.x, bunny.pos.y, (int)_floor_tile);
-      print_bunny_died(bunny, ofs);
+      print_bunny_died(bunny, ofs, out_console);
       _bunny_pos_map.erase(it->pos);
       it = _bunnies.erase(it);
 
@@ -206,7 +213,7 @@ bool BunnyManager::next_turn() {
             _bunny_pos_map.insert({it->pos, *it});
 
             set_bunny_tile(*it);
-            print_bunny_born(*it, ofs);
+            print_bunny_born(*it, ofs, out_console);
 
             if (it->infected())
               mutate_adj(it->pos);
@@ -216,10 +223,26 @@ bool BunnyManager::next_turn() {
         }
       }
     }
+
+    _bunnies.sort(
+      [](const Bunny& b1, const Bunny& b2) {
+        return b1.age() < b2.age();
+      }
+    );
+
+    OUT("\nBunnies remaining: \n", ofs, out_console);
+
+    for (const auto& bunny : _bunnies) {
+      if (bunny.infected())
+        OUT("Infected ", ofs, out_console); 
+      
+      OUT("Bunny " << bunny.name() << " ("
+        << bunny_info(bunny) << ")\n", ofs, out_console);
+    }
   }
 
   if (_bunnies.size() > bunny_limit) {
-    COUT_AND_OFS("Food shortage occured!\n", ofs);
+    OUT("Food shortage occured!\n", ofs, out_console);
     _cull_bunnies.resize(_bunnies.size());
     
     std::fill(

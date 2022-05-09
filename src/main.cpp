@@ -177,14 +177,18 @@ static void game_loop(sf::RenderWindow& win, TileMap& tile_map,
         win.close();
       
       else if (event.type == sf::Event::KeyPressed) {
-        if (event.key.code == sf::Keyboard::T)
+        if (event.key.code == sf::Keyboard::T) {
           if (!bunny_manager.next_turn())
             iterations += 1;
+        }
 
-        if (event.key.code == sf::Keyboard::R) {
+        else if (event.key.code == sf::Keyboard::R) {
           bunny_manager.reset();
           iterations = 0;
         }
+
+        else if (event.key.code == sf::Keyboard::C)
+          bunny_manager.out_console = !bunny_manager.out_console;
       }
     }
 

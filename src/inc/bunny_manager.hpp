@@ -32,14 +32,19 @@ class BunnyManager {
   std::vector<bool> _cull_bunnies{};
   
   static std::string bunny_info(const Bunny& bunny);
-  static void print_bunny_born(const Bunny& bunny, std::ofstream& ofs);
-  static void print_bunny_died(const Bunny& bunny, std::ofstream& ofs);
+  static void print_bunny_born(const Bunny& bunny, std::ofstream& ofs,
+    bool out_console);
+  
+  static void print_bunny_died(const Bunny& bunny, std::ofstream& ofs,
+    bool out_console);
 
   void spawn_initial(int amount);
   void set_bunny_tile(const Bunny& bunny);
   void mutate_adj(sf::Vector2i pos);
 
 public:
+  bool out_console{};
+
   BunnyManager(TileMap& tile_map, TileType floor_tile,
     std::string out_file_name);
 
