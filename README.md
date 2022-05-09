@@ -1,5 +1,5 @@
 # Bunny Simulator
-A training project created in C++ and SFML to simulate the lifespan, breeding, and movement of healthy and sick bunnies. Events of each cycle and the remaining bunnies are outputted to a file and optionally to the console (refer to __Usage__).
+A training project created in C++ and SFML to simulate the lifespan, breeding, and movement of healthy and sick bunnies. Events of each cycle and the remaining bunnies are outputted to a file (`output.txt`) and optionally to the console (refer to __Usage__).
 
 ![Screenshot](https://i.imgur.com/sG2jEmr.png)
 
