@@ -97,5 +97,5 @@ Thumbs.db
 .ninja_deps
 .ninja_log
 
-# output.txt
-build/output.txt
+# build dir
+build/
