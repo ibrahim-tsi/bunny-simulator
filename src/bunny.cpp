@@ -1,11 +1,11 @@
 #include "bunny.hpp"
 #include "bunny_names.hpp"
 
-const int& Bunny::age() const { return _age; }
+int Bunny::age() const { return _age; }
 const Gender& Bunny::gender() const { return _gender; }
 const BunnyColour& Bunny::colour() const { return _colour; }
 const std::string& Bunny::name() const { return _name; }
-const bool& Bunny::infected() const { return _mutant; }
+bool Bunny::infected() const { return _mutant; }
 
 Bunny::Bunny(sf::Vector2i bunny_pos) :
   _gender(util::rnd_enum_class<Gender>()),

@@ -34,11 +34,11 @@ class Bunny {
 public:
   sf::Vector2i pos{};
 
-  const int& age() const;
+  int age() const;
   const Gender& gender() const;
   const BunnyColour& colour() const;
   const std::string& name() const;
-  const bool& infected() const;
+  bool infected() const;
 
   explicit Bunny(sf::Vector2i bunny_pos);
   Bunny(sf::Vector2i pos, int age, BunnyColour colour);
