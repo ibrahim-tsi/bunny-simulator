@@ -28,7 +28,7 @@ class Bunny {
   Gender _gender{};
   BunnyColour _colour{};
   int _age{};
-  std::string _name{};
+  std::string _name{}; // const
   bool _mutant{};
 
 public:

@@ -4,26 +4,26 @@
 #include "path_finding.hpp"
 
 namespace path_finding {
-  std::pair<int, int> traverse(std::pair<int, int> start, char dir) {
+  std::pair<int, int> traverse(std::pair<int, int> start, Dir dir) {
     std::pair<int, int> end(start);
 
     switch (dir) {
-      case 'L':
+      case Dir::left:
         end.first -= 1;
 
         break;
 
-      case 'R':
+      case Dir::right:
         end.first += 1;
 
         break;
 
-      case 'U':
+      case Dir::up:
         end.second -= 1;
 
         break;
 
-      case 'D':
+      case Dir::down:
         end.second += 1;
 
         break;
@@ -32,46 +32,46 @@ namespace path_finding {
     return end;
   }
 
-  std::pair<int, int> traverse(std::pair<int, int> start,
-    std::string_view path)
-  {
-    std::pair<int, int> end(start);
+  // std::pair<int, int> traverse(std::pair<int, int> start,
+  //   std::string_view path)
+  // {
+  //   std::pair<int, int> end(start);
 
-    for (const auto& ch : path)
-      end = traverse(end, ch);
+  //   for (const auto& ch : path)
+  //     end = traverse(end, ch);
 
-    return end;
-  }
+  //   return end;
+  // }
 
-  std::pair<bool, std::string> bfs(std::pair<int, int> start,
-    std::pair<int, int> goal, std::function<bool(int, int)> valid_move)
-  {
-    std::queue<std::string> paths{};
+  // std::pair<bool, std::string> bfs(std::pair<int, int> start,
+  //   std::pair<int, int> goal, std::function<bool(int, int)> valid_move)
+  // {
+  //   std::queue<std::string> paths{};
 
-    paths.push("");
+  //   paths.push("");
 
-    std::string path{""};
-    std::set<std::pair<int, int>> visited{};
+  //   std::string path{""};
+  //   std::set<std::pair<int, int>> visited{};
 
-    while (traverse(start, path) != goal) {
-      if (paths.empty())
-        return {false, path};
+  //   while (traverse(start, path) != goal) {
+  //     if (paths.empty())
+  //       return {false, path};
 
-      path = paths.front();
-      paths.pop();
+  //     path = paths.front();
+  //     paths.pop();
 
-      for (const auto ch : "LRUD") {
-        std::string put{path + ch};
-        std::pair<int, int> end{traverse(start, put)};
+  //     for (const auto ch : "LRUD") {
+  //       std::string put{path + ch};
+  //       std::pair<int, int> end{traverse(start, put)};
 
-        if (!visited.contains(end) && valid_move(end.first, end.second)) {
-          visited.insert(end);
+  //       if (!visited.contains(end) && valid_move(end.first, end.second)) {
+  //         visited.insert(end);
 
-          paths.push(put);
-        }
-      }
-    }
+  //         paths.push(put);
+  //       }
+  //     }
+  //   }
 
-    return {true, path};
-  }
+  //   return {true, path};
+  // }
 }

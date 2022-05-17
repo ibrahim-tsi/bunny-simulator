@@ -2,6 +2,8 @@
 #include <SFML/Graphics.hpp>
 #include <unordered_map>
 #include <list>
+#include <fstream>
+#include <iostream>
 
 #include "config.h"
 #include "util.hpp"
@@ -9,9 +11,9 @@
 #include "tile_map.hpp"
 #include "bunny_manager.hpp"
 
-static constexpr TileType floor_tile{TileType::dirt};
-static constexpr char const *out_file_name{"output.txt"};
-static constexpr char const *win_title{"Bunny Simulator"};
+static const TileType floor_tile{TileType::dirt};
+static const char const *win_title{"Bunny Simulator"};
+static const char const *out_file_name{"output.txt"};
 
 static const std::unordered_map<TileType, std::string> tile_type_map {
   {TileType::dirt, "dirt"},
@@ -32,6 +34,8 @@ static const std::unordered_map<TileType, std::string> tile_type_map {
   {TileType::spotted_juvenile, "spotted_juvenile"},
   {TileType::spotted_juvenile_mutant, "spotted_juvenile_mutant"}
 };
+
+std::ofstream ofs(out_file_name);
 
 typedef std::unordered_map<
   TileType,
@@ -73,11 +77,6 @@ static void init_tile_sprite_map(tile_sprite_map_t& tile_sprite_map,
     sprite.setTexture(tex);
     resize_sprite(sprite, tile_size, tile_size);
   }
-}
-
-static void init_screen_tex(sf::RenderTexture& tex, sf::Vector2u size) {
-  if (!tex.create(size.x, size.y))
-    exit(1);
 }
 
 static void draw_tile_map(sf::RenderTexture& tex, TileMap& tile_map,
@@ -132,12 +131,35 @@ static void init_win(sf::RenderWindow& win, TileMap& tile_map,
     );
 }
 
+static void init_iterations_text(sf::Text& iterations_text, sf::Font& font) {
+  iterations_text.setFont(font);
+  iterations_text.setCharacterSize(24);
+  iterations_text.setFillColor(sf::Color::Black);
+  iterations_text.setPosition(10, 10);
+}
+
+void log_file(std::string_view str) {
+  ofs << str;
+}
+
+void log_file_and_console(std::string_view str) {
+  log_file(str);
+
+  std::cout << str;
+}
+
+void clear_log_file() {
+  ofs.close();
+  ofs.open(out_file_name);
+}
+
 static void game_loop(sf::RenderWindow& win, TileMap& tile_map,
   tile_sprite_map_t& tile_sprite_map)
 {
   sf::RenderTexture screen_tex{};
   
-  init_screen_tex(screen_tex, win.getSize());
+  if (!screen_tex.create(win.getSize().x, win.getSize().y))
+    exit(1);
 
   sf::Sprite screen_sprite(screen_tex.getTexture());
 
@@ -149,26 +171,25 @@ static void game_loop(sf::RenderWindow& win, TileMap& tile_map,
 
   update_screen();
 
-  BunnyManager bunny_manager(tile_map, floor_tile, out_file_name); 
-
+  int iterations{0};
+  sf::Text iterations_text{};
   sf::Font font;
   
   if (!font.loadFromFile("resources/m6x11.ttf"))
     exit(1);
 
-  int iterations{0};
-  sf::Text iterations_text{};
-
-  iterations_text.setFont(font);
-  iterations_text.setCharacterSize(24);
-  iterations_text.setFillColor(sf::Color::Black);
-  iterations_text.setPosition(10, 10);
-
+  init_iterations_text(iterations_text, font);
+  
   auto update_ui = [&]() {
     iterations_text.setString("Iterations: " + std::to_string(iterations));
     win.draw(iterations_text);
   };
 
+  clear_log_file();
+  BunnyManager bunny_manager(tile_map, floor_tile, log_file); 
+
+  bool log_to_console{false};
+  
   while (win.isOpen()) {
     sf::Event event{};
 
@@ -185,13 +206,18 @@ static void game_loop(sf::RenderWindow& win, TileMap& tile_map,
         else if (event.key.code == sf::Keyboard::R) {
           bunny_manager.reset();
           iterations = 0;
+
+          clear_log_file();
         }
 
-        else if (event.key.code == sf::Keyboard::C)
-          bunny_manager.out_console = !bunny_manager.out_console;
+        else if (event.key.code == sf::Keyboard::C) {
+          log_to_console = !log_to_console;
 
-        else if (event.key.code == sf::Keyboard::O) {
-          
+          if (log_to_console)
+            bunny_manager.set_log_info(log_file_and_console);
+
+          else
+            bunny_manager.set_log_info(log_file);
         }
       }
     }
