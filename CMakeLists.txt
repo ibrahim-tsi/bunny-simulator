@@ -33,6 +33,7 @@ include_directories(src/inc)
 set(SRC
   src/util.cpp
   src/tile_map.cpp
+  src/logger.cpp
   src/bunny_names.cpp
   src/bunny.cpp
   src/path_finding.cpp

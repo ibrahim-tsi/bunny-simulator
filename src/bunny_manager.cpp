@@ -51,27 +51,27 @@ bool BunnyManager::is_overaged(const Bunny& bunny) {
 
 void BunnyManager::print_bunny_born(const Bunny& bunny) {
   if (bunny.infected())
-    _log_info("Infected "); 
+    _logger.log("Infected "); 
   
   std::stringstream output{};
 
   output << "Bunny " << bunny.name() << " was born! ("
     << bunny_info(bunny) << ")\n";
 
-  _log_info(output.str());
+  _logger.log(output.str());
 }
 
 void BunnyManager::print_bunny_died(const Bunny& bunny)
 {
   if (bunny.infected())
-    _log_info("Infected "); 
+    _logger.log("Infected "); 
 
   std::stringstream output{};
 
   output << "Bunny " << bunny.name() << " died! ("
     << bunny_info(bunny) << ")\n";
 
-  _log_info(output.str());
+  _logger.log(output.str());
 }
 
 void BunnyManager::spawn_initial(int amount) {
@@ -90,7 +90,7 @@ void BunnyManager::spawn_initial(int amount) {
     print_bunny_born(*it);
   }
 
-  _log_info("\n");
+  _logger.log("\n");
 }
 
 void BunnyManager::set_bunny_tile(const Bunny& bunny) {
@@ -189,7 +189,7 @@ void BunnyManager::sort_by_age() {
 }
 
 void BunnyManager::food_shortage() {
-  _log_info("Food shortage occured!\n");
+  _logger.log("Food shortage occured!\n");
   _cull_bunnies.resize(_bunnies.size());
   
   std::fill(
@@ -225,15 +225,11 @@ void BunnyManager::food_shortage() {
   }
 }
 
-void BunnyManager::set_log_info(bunny_manager::log_info_t log_info) {
-  _log_info = log_info;
-}
-
 BunnyManager::BunnyManager(TileMap& tile_map, TileType floor_tile,
-  log_info_t log_info) :
+  Logger& logger) :
     _tile_map(tile_map),
     _floor_tile(floor_tile),
-    _log_info(log_info),
+    _logger(logger),
     _cull_bunnies(bunny_limit)
 {
   spawn_initial(5);
@@ -282,21 +278,21 @@ bool BunnyManager::next_turn() {
 
   sort_by_age();
 
-  _log_info("\nBunnies remaining: \n");
+  _logger.log("\nBunnies remaining: \n");
 
   for (const auto& bunny : _bunnies) {
     if (bunny.infected())
-      _log_info("Infected ");
+      _logger.log("Infected ");
 
     std::stringstream output{};
     
     output << "Bunny " << bunny.name() << " (" << bunny_info(bunny) <<
       ") at (" << bunny.pos.x << ", " << bunny.pos.y << ")\n";
 
-    _log_info(output.str());
+    _logger.log(output.str());
   }
 
-  _log_info("\n");
+  _logger.log("\n");
 
   if (_bunnies.size() > bunny_limit)
     food_shortage();

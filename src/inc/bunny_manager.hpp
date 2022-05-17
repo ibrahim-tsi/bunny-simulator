@@ -8,9 +8,9 @@
 #include "bunny.hpp"
 #include "tile_map.hpp"
 #include "tile_type.hpp"
+#include "logger.hpp"
 
 namespace bunny_manager {
-  typedef std::function<void(std::string_view)> log_info_t;
   typedef std::list<std::pair<sf::Vector2i, BunnyColour>> breedable_females_t;
 }
 
@@ -29,10 +29,10 @@ struct std::hash<sf::Vector2<T>> {
 class BunnyManager {
   static const int bunny_limit{1000};
 
-  bunny_manager::log_info_t _log_info{};
   std::list<Bunny> _bunnies{};
   std::unordered_map<sf::Vector2i, Bunny&> _bunny_pos_map{};
   TileMap& _tile_map;
+  Logger& _logger;
   TileType _floor_tile{};
   std::vector<bool> _cull_bunnies{};
   
@@ -50,10 +50,8 @@ class BunnyManager {
   void food_shortage();
 
 public:
-  void set_log_info(bunny_manager::log_info_t log_info);
-
   BunnyManager(TileMap& tile_map, TileType floor_tile,
-    bunny_manager::log_info_t log_info);
+    Logger& logger);
 
   bool next_turn();
   void reset();

@@ -9,11 +9,12 @@
 #include "util.hpp"
 #include "tile_type.hpp"
 #include "tile_map.hpp"
+#include "logger.hpp"
 #include "bunny_manager.hpp"
 
 static const TileType floor_tile{TileType::dirt};
-static const char const *win_title{"Bunny Simulator"};
-static const char const *out_file_name{"output.txt"};
+static const char *const win_title{"Bunny Simulator"};
+static const char *const out_file_name{"output.txt"};
 
 static const std::unordered_map<TileType, std::string> tile_type_map {
   {TileType::dirt, "dirt"},
@@ -34,8 +35,6 @@ static const std::unordered_map<TileType, std::string> tile_type_map {
   {TileType::spotted_juvenile, "spotted_juvenile"},
   {TileType::spotted_juvenile_mutant, "spotted_juvenile_mutant"}
 };
-
-std::ofstream ofs(out_file_name);
 
 typedef std::unordered_map<
   TileType,
@@ -138,21 +137,6 @@ static void init_iterations_text(sf::Text& iterations_text, sf::Font& font) {
   iterations_text.setPosition(10, 10);
 }
 
-void log_file(std::string_view str) {
-  ofs << str;
-}
-
-void log_file_and_console(std::string_view str) {
-  log_file(str);
-
-  std::cout << str;
-}
-
-void clear_log_file() {
-  ofs.close();
-  ofs.open(out_file_name);
-}
-
 static void game_loop(sf::RenderWindow& win, TileMap& tile_map,
   tile_sprite_map_t& tile_sprite_map)
 {
@@ -185,8 +169,8 @@ static void game_loop(sf::RenderWindow& win, TileMap& tile_map,
     win.draw(iterations_text);
   };
 
-  clear_log_file();
-  BunnyManager bunny_manager(tile_map, floor_tile, log_file); 
+  Logger logger(out_file_name);
+  BunnyManager bunny_manager(tile_map, floor_tile, logger); 
 
   bool log_to_console{false};
   
@@ -207,18 +191,11 @@ static void game_loop(sf::RenderWindow& win, TileMap& tile_map,
           bunny_manager.reset();
           iterations = 0;
 
-          clear_log_file();
+          logger.clear();
         }
 
-        else if (event.key.code == sf::Keyboard::C) {
-          log_to_console = !log_to_console;
-
-          if (log_to_console)
-            bunny_manager.set_log_info(log_file_and_console);
-
-          else
-            bunny_manager.set_log_info(log_file);
-        }
+        else if (event.key.code == sf::Keyboard::C)
+          logger.to_console = !logger.to_console;
       }
     }
 
